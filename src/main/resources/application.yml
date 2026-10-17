@@ -1,0 +1,34 @@
+# ============================================================================
+# CONFIGURACIÓN — sobreescribible por variables de entorno
+#   SERVER_PORT        puerto de este servicio (default 8084)
+#   RABBITMQ_HOST      host del nodo RabbitMQ (default localhost)
+#   RABBITMQ_PORT      puerto AMQP (default 5672)
+#   RABBITMQ_USER      usuario (el mismo RABBITMQ_DEFAULT_USER de docker/.env)
+#   RABBITMQ_PASSWORD  clave   (el mismo RABBITMQ_DEFAULT_PASS de docker/.env)
+# Este servicio es interno: solo lo llama el BFF, que ya valida el JWT y exige
+# rol Admin. En EC2 su puerto no debe estar abierto a internet.
+# ============================================================================
+server:
+  port: ${SERVER_PORT:8084}
+
+spring:
+  application:
+    name: ms-rutaexpress-rabbit-admin
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true   # "topic" y "TOPIC" son válidos
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:rutaexpress}
+    password: ${RABBITMQ_PASSWORD:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+logging:
+  level:
+    com.rutaexpress: DEBUG
