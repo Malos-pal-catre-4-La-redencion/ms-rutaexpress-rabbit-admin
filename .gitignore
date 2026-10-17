@@ -1,0 +1,19 @@
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Secretos y config local
+.env
+application-local.yml
+
+# Sistema
+.DS_Store
+Thumbs.db

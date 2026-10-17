@@ -1,0 +1,61 @@
+# Clúster RabbitMQ de 2 nodos (rabbit1 + rabbit2) para RutaExpress.
+# Levantar:  docker compose up -d
+# Credenciales y cookie vienen de .env (copiar desde .env.example).
+name: rutaexpress-rabbit
+
+x-rabbit-common: &rabbit-common
+  image: rabbitmq:3.13-management
+  restart: unless-stopped
+  environment: &rabbit-env
+    RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:?defina RABBITMQ_ERLANG_COOKIE en .env}
+    RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:?defina RABBITMQ_DEFAULT_USER en .env}
+    RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?defina RABBITMQ_DEFAULT_PASS en .env}
+  networks:
+    - rabbit-net
+
+services:
+  rabbit1:
+    <<: *rabbit-common
+    container_name: rabbit1
+    hostname: rabbit1
+    ports:
+      - "5672:5672"     # AMQP (microservicios)
+      - "15672:15672"   # Management UI / API HTTP
+    volumes:
+      - rabbit1-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  rabbit2:
+    <<: *rabbit-common
+    container_name: rabbit2
+    hostname: rabbit2
+    depends_on:
+      rabbit1:
+        condition: service_healthy
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - rabbit2-data:/var/lib/rabbitmq
+      - ./scripts/join-cluster.sh:/usr/local/bin/join-cluster.sh:ro
+    # Arranca el nodo, lo une a rabbit1 y lo deja en primer plano.
+    command: ["bash", "/usr/local/bin/join-cluster.sh"]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+
+networks:
+  rabbit-net:
+    driver: bridge
+
+volumes:
+  rabbit1-data:
+  rabbit2-data:
