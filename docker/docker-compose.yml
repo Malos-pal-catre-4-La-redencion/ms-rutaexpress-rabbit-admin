@@ -39,8 +39,7 @@ services:
       - "15673:15672"
     volumes:
       - rabbit2-data:/var/lib/rabbitmq
-      - ./scripts/join-cluster.sh:/usr/local/bin/join-cluster.sh:ro
-    command: ["bash", "/usr/local/bin/join-cluster.sh"]
+      - ./cluster.conf:/etc/rabbitmq/conf.d/20-cluster.conf:ro
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s

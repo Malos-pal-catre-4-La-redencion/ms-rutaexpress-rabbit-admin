@@ -32,3 +32,4 @@ management:
 logging:
   level:
     com.rutaexpress: DEBUG
+

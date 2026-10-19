@@ -1,0 +1,8 @@
+# Copiar a application-local.yml (en .gitignore: NO se sube a Git).
+# Se usa con:  mvn spring-boot:run -Dspring-boot.run.profiles=local
+spring:
+  rabbitmq:
+    host: localhost                 # en EC2: la IP privada de la instancia de RabbitMQ
+    port: 5672
+    username: rutaexpress           # el RABBITMQ_DEFAULT_USER de docker/.env
+    password: LA-CLAVE-DE-docker-.env   # el RABBITMQ_DEFAULT_PASS de docker/.env
